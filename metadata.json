@@ -1,0 +1,6 @@
+{
+  "name": "DineFlow - Restaurant Ordering System",
+  "description": "Two-portal restaurant ordering system with table-specific ordering and real-time staff order management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

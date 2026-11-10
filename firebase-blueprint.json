@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A food or beverage dish offered in the restaurant menu",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 500 },
+        "price": { "type": "number" },
+        "category": { "type": "string", "maxLength": 60 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "isVeg": { "type": "boolean" },
+        "spiceLevel": { "type": "number" },
+        "isAvailable": { "type": "boolean" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "price", "category", "isVeg", "isAvailable", "isPublished"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer food order placed from a specific dining table",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderNumber": { "type": "string", "maxLength": 32 },
+        "tableId": { "type": "string", "maxLength": 32 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "upi", "card"] },
+        "paymentStatus": { "type": "string", "enum": ["paid", "pending"] },
+        "status": { "type": "string", "enum": ["received", "accepted", "preparing", "ready", "completed", "rejected"] },
+        "specialInstructions": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["orderNumber", "tableId", "totalAmount", "status", "paymentMethod", "paymentStatus"]
+    },
+    "ServiceRequest": {
+      "title": "ServiceRequest",
+      "description": "On-demand table service assistance requested by the customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tableId": { "type": "string", "maxLength": 32 },
+        "type": { "type": "string", "enum": ["call_waiter", "water", "assistance", "bill"] },
+        "status": { "type": "string", "enum": ["pending", "resolved"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["tableId", "type", "status"]
+    }
+  },
+  "firestore": {
+    "/menuItems/{itemId}": {
+      "schema": { "$ref": "#/entities/MenuItem" },
+      "description": "Collection of restaurant menu dishes and drinks"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Collection of customer orders"
+    },
+    "/serviceRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/ServiceRequest" },
+      "description": "Collection of table service and waiter call requests"
+    }
+  }
+}

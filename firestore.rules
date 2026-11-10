@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /menuItems/{itemId} {
+      allow get: if isValidId(itemId);
+      allow list: if true;
+      allow create, update: if isValidId(itemId);
+      allow delete: if isSignedIn();
+    }
+
+    match /orders/{orderId} {
+      // Customer can fetch/listen to their specific order by ID
+      allow get: if isValidId(orderId);
+      // Staff order dashboard can list orders
+      allow list: if true;
+      // Unauthenticated customers can create valid new orders
+      allow create: if isValidId(orderId)
+        && request.resource.data.orderNumber is string
+        && request.resource.data.tableId is string
+        && (request.resource.data.totalAmount is int || request.resource.data.totalAmount is float)
+        && request.resource.data.totalAmount >= 0
+        && request.resource.data.status == 'received'
+        && request.resource.data.paymentStatus in ['paid', 'pending'];
+      // Order status transitions managed by staff
+      allow update: if isSignedIn() || request.resource.data.status in ['received', 'accepted', 'preparing', 'ready', 'completed', 'rejected'];
+      allow delete: if isSignedIn();
+    }
+
+    match /serviceRequests/{requestId} {
+      allow get: if isValidId(requestId);
+      allow list: if true;
+      allow create: if isValidId(requestId)
+        && request.resource.data.tableId is string
+        && request.resource.data.type in ['call_waiter', 'water', 'assistance', 'bill']
+        && request.resource.data.status == 'pending';
+      allow update: if isSignedIn() || request.resource.data.status in ['pending', 'resolved'];
+      allow delete: if isSignedIn();
+    }
+  }
+}
